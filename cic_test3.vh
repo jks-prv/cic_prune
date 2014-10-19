@@ -1,6 +1,7 @@
 // generated file
 
 // CIC: NO_PRUNE N=5 R=16 M=1 Bin=24 Bout=16
+// growth 20 = ceil(N=5 * log2(R=16))
 // Bin 24 + growth 20 = acc_max 44
 
 wire signed [43:0] integrator0_data;

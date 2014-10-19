@@ -164,6 +164,9 @@ void cic_gen(char *fn, int prune, int N, int R, int Bin, int Bout)
 		B_sub_j[j] = Minus_log2_of_F_sub_j[j] + Log_base2_of_Output_Truncation_Noise_Standard_Deviation + Half_Log_Base2_of_6_over_N;
 	}
 	
+	printf("growth %.0f = ceil(N=%d * log2(R=%d))\n", Num_of_Bits_Growth, N, R);
+	fprintf(fp, "// growth %.0f = ceil(N=%d * log2(R=%d))\n", Num_of_Bits_Growth, N, R);
+
 	printf("Bin %d + growth %.0f = acc_max %.0f\n", Bin, Num_of_Bits_Growth, Num_Output_Bits_With_No_Truncation);
 	fprintf(fp, "// Bin %d + growth %.0f = acc_max %.0f\n\n", Bin, Num_of_Bits_Growth, Num_Output_Bits_With_No_Truncation);
 	
