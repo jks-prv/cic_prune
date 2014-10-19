@@ -1,34 +1,23 @@
-/*
---------------------------------------------------------------------------------
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Library General Public
-License as published by the Free Software Foundation; either
-version 2 of the License, or (at your option) any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Library General Public License for more details.
-You should have received a copy of the GNU Library General Public
-License along with this library; if not, write to the
-Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-Boston, MA  02110-1301, USA.
---------------------------------------------------------------------------------
-*/
+// Licensed under a Creative Commons Attribution 3.0 Unported License
 
-// Copyright (c) 2014 John Seamons, ZL/KF6VO
+// Original work Copyright (c) 2012 Rick Lyons (http://www.dsprelated.com/code.php?submittedby=14446)
+// Original work: http://www.dsprelated.com/showcode/269.php
+
+// Derivative work Copyright (c) 2014 John Seamons, ZL/KF6VO
 
 /*
  * A C version of Rick Lyon's Matlab implementation of Hogenauer's CIC filter register pruning algorithm.
  * 
  * A Verilog file is generated containing unrolled calls to the integrator and comb sections at the pruned bit widths.
  * Assumes you have a Verilog wrapper that looks like this:
- 
+ *
  *		wire signed [IN_WIDTH-1:0] in = ...;
  *		wire signed [OUT_WIDTH-1:0] out;
  *		`include "cic_gen.vh"
  *
- * And the modules "cic_integrator" and "cic_comb" that implement the actual CIC filter.
+ * And the modules "cic_integrator" and "cic_comb" that implement the actual CIC filter internals.
  * Variables "in" and "out" connect to the generated code.
+ * Very important that variable "in" be declared signed to allow proper Verilog sign-extension.
  *
  * See Rick's original article at: http://www.dsprelated.com/showcode/269.php
  */
@@ -64,7 +53,6 @@ double factd(int n)
 	return d;
 }
 
-// I don't really understand the Matlab description of this operation
 float nchoosek(int n, int k)
 {
 	double fn = factd(n);
@@ -105,6 +93,8 @@ void cic_gen(char *fn, int prune, int N, int R, int Bin, int Bout)
 	
 	#define MAX_N		7		// max number of stages 
 	#define MAX_R		8192	// max decimation
+	assert(N <= MAX_N);
+	assert(R <= MAX_R);
 	
 	#define	HJ_LEN		( (MAX_R*M-1)*MAX_N + (MAX_N-1) )
 	float h_sub_j[HJ_LEN+1];
@@ -195,6 +185,7 @@ void cic_gen(char *fn, int prune, int N, int R, int Bin, int Bout)
 	
 	printf(" stage     Fj    Bj   acc trunc\n");
 	int end = (prune == INTEG_ONLY)? N : NX;
+
 	for (s=1; s<=end; s++) {
 		printf("%s%d ", (s<=N)? "integ": ( (s<=2*N)? " comb" : "  out" ), (s<=N)? s: ( (s<=2*N)? s-N:0 ));
 		if (isnan(F_sub_j[s]) || isinf(F_sub_j[s]) || (F_sub_j[s] < 1000))
@@ -243,7 +234,9 @@ void cic_gen(char *fn, int prune, int N, int R, int Bin, int Bout)
 			fprintf(fp, "wire signed [%d:0] comb%d_data;\n", pACC[s]-1, s-N);
 		}
 		
-		fprintf(fp, "\nassign integrator0_data = in;\n\n");
+		fprintf(fp, "\n// important that \"in\" be declared signed by wrapper code\n");
+		fprintf(fp, "// so this assignment will sign-extend:\n");
+		fprintf(fp, "assign integrator0_data = in;\n\n");
 		
 		for (s=1; s<=N; s++) {
 			fprintf(fp, 
@@ -277,9 +270,10 @@ int main (int argc, char *argv[])
 {
 	//cic_gen(generated_filename, mode, #stages, decimation, bits_in, bits_out);
 
+	cic_gen("cic_test0.vh", INTEG_COMB, 3, 8, 12, 12);		// example from Rick's article
 	cic_gen("cic_test1.vh", INTEG_COMB, 5, 7936, 22, 24);
 	cic_gen("cic_test2.vh", INTEG_COMB, 5, 16, 24, 16);
-	cic_gen("cic_test3.vh", NO_PRUNE, 5, 16, 24, 16);
+	cic_gen("cic_test3.vh", NO_PRUNE, 5, 16, 24, 16);		// same as above with no pruning for comparison
 
 	return(0);
 }

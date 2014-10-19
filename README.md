@@ -7,7 +7,7 @@ Assumes you have a Verilog wrapper that looks like this:
  
 		wire signed [IN_WIDTH-1:0] in = ...;
 		wire signed [OUT_WIDTH-1:0] out;
-		`include "cic_gen.vh"
+		`include "cic_test.vh"
 
 And the modules "cic_integrator" and "cic_comb" that implement the actual CIC
 filter. Variables "in" and "out" connect to the generated code.
