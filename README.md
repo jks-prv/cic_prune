@@ -9,7 +9,10 @@ Assumes you have a Verilog wrapper that looks like this:
 		wire signed [OUT_WIDTH-1:0] out;
 		`include "cic_test.vh"
 
-And the modules "cic_integrator" and "cic_comb" that implement the actual CIC
-filter. Variables "in" and "out" connect to the generated code.
+And the modules "cic_integrator" and "cic_comb" called by the generated code
+that implement the actual CIC filter (examples included in package). Variables
+"in" and "out" connect to the generated code.
 
 See Rick's original article at: http://www.dsprelated.com/showcode/269.php
+
+More info at: http://jks.com/cic/cic.html
