@@ -1,5 +1,6 @@
 all:
 	cc -o cic cic_gen.c
+	./cic
 
 clean:
-	@rm -f cic
+	@rm -f cic *.vh

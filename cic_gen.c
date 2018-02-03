@@ -325,6 +325,7 @@ int main (int argc, char *argv[])
 {
 	//cic_gen(generated_filename, mode, #stages, decimation, bits_in, bits_out);
 
+// example of use in the KiwiSDR project (Github Beagle_SDR_GPS)
 #include "kiwi.gen.h"
 
 	cic_gen("cic_rx1.vh", INTEG_COMB, RX1_STAGES, RX1_DECIM, RX1_BITS, RX2_BITS);
